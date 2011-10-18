@@ -1,11 +1,19 @@
 #!/usr/bin/ruby
 require 'irb/completion'
 require 'irb/ext/save-history'
+require 'pp'
 
 IRB.conf[:SAVE_HISTORY] = 1000
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb_history"
 
 IRB.conf[:PROMPT_MODE] = :SIMPLE
+
+IRB.conf[:AUTO_INDENT] = true
+IRB.conf[:USE_READLINE] = true
+
+def say(msg)
+	%x{osascript -e 'tell application "Finder" to say "#{msg}"'}
+end
 
 %w[rubygems looksee/shortcuts wirble].each do |gem|
   begin

@@ -1,3 +1,6 @@
+source /etc/profile
+source ~/.profile
+
 source ~/.bash/aliases
 source ~/.bash/completions
 source ~/.bash/paths

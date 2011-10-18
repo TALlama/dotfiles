@@ -13,3 +13,9 @@ function railsapp {
 
 # misc
 alias reload='. ~/.bash_profile'
+alias ll="ls -lh"
+alias vm-diskTool="/Applications/VMware\ Fusion.app/Contents/MacOS/diskTool"
+alias mate-reload="osascript -e 'tell app \"TextMate\" to reload bundles'"
+alias grep="grep --color=auto"
+alias ql="qlmanage -p"
+alias psgrep="ps auxwww | grep"

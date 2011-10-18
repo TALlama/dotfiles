@@ -1,2 +1,10 @@
-export PATH="~/bin:~/.bin:/usr/local/homebrew/bin:/usr/local/bin:/usr/local/sbin:/usr/local/mysql/bin:/usr/local/git/bin:$PATH"
+export PATH=/Developer/Tools:$PATH
+export PATH=/usr/local/mysql/bin:$PATH
+export PATH=/usr/local/git/bin:$PATH
+export PATH=/usr/local/sbin:$PATH
+export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/homebrew/bin:$PATH
+export PATH=~/bin:$PATH
+export PATH=~/.bin:$PATH
+
 export MANPATH="/usr/local/man:/usr/local/mysql/man:/usr/local/git/man:$MANPATH"

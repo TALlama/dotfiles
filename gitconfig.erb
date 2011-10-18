@@ -1,20 +1,48 @@
 [user]
 	name = <%= print("Your Name: "); STDOUT.flush; STDIN.gets.chomp %>
 	email = <%= print("Your Email: "); STDOUT.flush; STDIN.gets.chomp %>
-[alias]
-	co = checkout
-[color]
-	diff = auto
-	status = auto
-	branch = auto
+[github]
+	user = <%= print("GitHub Username: "); STDOUT.flush; STDIN.gets.chomp %>
+	token = <%= print("GitHub API Token: "); STDOUT.flush; STDIN.gets.chomp %>
 [core]
 	excludesfile = <%= ENV['HOME'] %>/.gitignore
 	editor = mate -w
 	autocrlf = input
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+[merge]
+	tool = opendiff
+	summary = true
 [apply]
 	whitespace = nowarn
 [format]
 	pretty = %C(yellow)%h%Creset %s %C(red)(%an, %cr)%Creset
-[github]
-	user = <%= print("GitHub Username: "); STDOUT.flush; STDIN.gets.chomp %>
-	token = <%= print("GitHub API Token: "); STDOUT.flush; STDIN.gets.chomp %>
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+	cob = checkout -b
+	up = !git fetch origin && git rebase origin/master
+	ir = !git rebase -i origin/master
+	ff = !git save && git rebase && git pop
+	di = diff
+	type = cat-file -t
+	dump = cat-file -p
+	undo-last-commit = reset --soft HEAD^
+  kill-last-commit = reset --hard HEAD^
+  fix = commit --amend -C HEAD
+  log-graph = log --all --graph --decorate
+  who = shortlog -n -s --no-merges
+  wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
+  unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
+  rb = !"git wip;git rebase origin/master;git unwip"
+  save = stash save
+  pop = stash pop
+	outgoing = diff origin/master
+	incoming = !"git fetch;"
+	ls-untracked = "ls-files --other --exclude-standard"
+	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
