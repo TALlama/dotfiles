@@ -33,16 +33,17 @@
 	type = cat-file -t
 	dump = cat-file -p
 	undo-last-commit = reset --soft HEAD^
-  kill-last-commit = reset --hard HEAD^
-  fix = commit --amend -C HEAD
-  log-graph = log --all --graph --decorate
-  who = shortlog -n -s --no-merges
-  wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
-  unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
-  rb = !"git wip;git rebase origin/master;git unwip"
-  save = stash save
-  pop = stash pop
+	kill-last-commit = reset --hard HEAD^
+	fix = commit --amend -C HEAD
+	log-graph = log --all --graph --decorate
+	who = shortlog -n -s --no-merges
+	wip = !"git add -A; git ls-files --deleted -z | xargs -0 git rm; git commit -m \"wip\""
+	unwip = !"git log -n 1 | grep -q -c wip && git reset HEAD~1"
+	rb = !"git wip;git rebase origin/master;git unwip"
+	save = stash save
+	pop = stash pop
 	outgoing = diff origin/master
-	incoming = !"git fetch;"
+	incoming = !"git fetch; git st"
 	ls-untracked = "ls-files --other --exclude-standard"
 	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+	unstage = reset HEAD --
