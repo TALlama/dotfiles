@@ -3,25 +3,27 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
 %>[user]
 	name = <%= current_or_prompt("user.name", "Your Name", &current) %>
 	email = <%= current_or_prompt("user.email", "Your Email", &current) %>
-[github]
-	user = <%= current_or_prompt("github.user", "GitHub Username", &current) %>
-	token = <%= current_or_prompt("github.token", "GitHub API Token", &current) %>
-[core]
-	excludesfile = <%= ENV['HOME'] %>/.gitignore
-	editor = mate -w
-	autocrlf = input
+[alias]
+	co = checkout
 [color]
 	diff = auto
 	status = auto
 	branch = auto
 	interactive = auto
-[merge]
-	tool = opendiff
-	summary = true
+[core]
+	excludesfile = <%= ENV['HOME'] %>/.gitignore
+	editor = mate -w
+	autocrlf = input
 [apply]
 	whitespace = nowarn
 [format]
 	pretty = %C(yellow)%h%Creset %s %C(red)(%an, %cr)%Creset
+[github]
+	user = <%= current_or_prompt("github.user", "GitHub Username", &current) %>
+	token = <%= current_or_prompt("github.token", "GitHub API Token", &current) %>
+[merge]
+	tool = opendiff
+	summary = true
 [alias]
 	st = status
 	ci = commit
