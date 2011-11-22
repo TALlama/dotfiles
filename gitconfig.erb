@@ -51,3 +51,4 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
 	ls-untracked = "ls-files --other --exclude-standard"
 	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
 	unstage = reset HEAD --
+	review = "!git co -b $1-$2 upstream/qa; git pull "
