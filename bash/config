@@ -1,8 +1,8 @@
-export PS1="\w$ "
 export EDITOR="mate_wait"
 export LESS="-erX" #stops annoying man behavior
 export CLICOLOR=true
 
+# colorize ls
 DIRECTORY=Ex
 SYMLINK=ex
 SOCKET=xg
@@ -16,6 +16,26 @@ DIRECTORY_WRITABLE=Eb
 DIRECTORY_WRITABLE_NON_STICKY=$DIRECTORY_WRITABLE
 export LSCOLORS=$DIRECTORY$SYMLINK$SOCKET$PIPE$EXECUTABLE$BLOCK_SPECIAL$CHARACTER_SPECIAL$SETUID_EXECUTABLE$SETGID_EXECUTABLE$DIRECTORY_WRITABLE$DIRECTORY_WRITABLE_NON_STICKY
 
+# colors
+export     ANSI_BLACK="\[\033[0;30m\]"
+export       ANSI_RED="\[\033[0;31m\]"
+export     ANSI_GREEN="\[\033[0;32m\]"
+export    ANSI_YELLOW="\[\033[0;33m\]"
+export      ANSI_BLUE="\[\033[0;34m\]"
+export   ANSI_MAGENTA="\[\033[0;35m\]"
+export      ANSI_CYAN="\[\033[0;36m\]"
+export     ANSI_WHITE="\[\033[0;37m\]"
+export   ANSI_DEFAULT="\[\033[0;39m\]"
+export   ANSI_BLACK_BG="\[\033[0;40m\]"
+export     ANSI_RED_BG="\[\033[0;41m\]"
+export   ANSI_GREEN_BG="\[\033[0;42m\]"
+export  ANSI_YELLOW_BG="\[\033[0;43m\]"
+export    ANSI_BLUE_BG="\[\033[0;44m\]"
+export ANSI_MAGENTA_BG="\[\033[0;45m\]"
+export    ANSI_CYAN_BG="\[\033[0;46m\]"
+export   ANSI_WHITE_BG="\[\033[0;47m\]"
+export ANSI_DEFAULT_BG="\[\033[0;49m\]"
+
 # make history work better
 export HISTCONTROL=erasedups
 export HISTSIZE=10000
@@ -26,6 +46,28 @@ shopt -s nocaseglob
 shopt -s extglob
 set completion-ignore-case true
 set show-all-if-ambiguous On
+
+# prompt (from http://www.jonmaddox.com/2008/03/13/show-your-git-branch-name-in-your-prompt/)
+function parse_git_branch {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+function gitorize_prompt {
+  case $TERM in
+    xterm*)
+    TITLEBAR='\[\033]0;\u@\h:\w\007\]'
+    ;;
+    *)
+    TITLEBAR=""
+    ;;
+  esac
+PS1="${TITLEBAR}\
+$ANSI_WHITE[$ANSI_RED\$(date +%H:%M)$ANSI_WHITE]\
+$ANSI_WHITE[$ANSI_RED\u@\h:\w$ANSI_GREEN\$(parse_git_branch)$ANSI_WHITE]\
+$ANSI_GREEN\$ $ANSI_DEFAULT"
+PS2="$ANSI_RED> $ANSI_DEFAULT"
+PS4="$ANSI_RED+ $ANSI_DEFAULT"
+}
+gitorize_prompt
 
 #set up rvm
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
