@@ -61,11 +61,11 @@ function gitorize_prompt {
     ;;
   esac
 PS1="${TITLEBAR}\
-$ANSI_WHITE[$ANSI_RED\$(date +%H:%M)$ANSI_WHITE]\
-$ANSI_WHITE[$ANSI_RED\u@\h:\w$ANSI_GREEN\$(parse_git_branch)$ANSI_WHITE]\
+$ANSI_WHITE[$ANSI_CYAN\$(date +%H:%M)$ANSI_WHITE]\
+$ANSI_WHITE[$ANSI_CYAN\u@\h:\w$ANSI_YELLOW\$(parse_git_branch)$ANSI_WHITE]\
 $ANSI_GREEN\$ $ANSI_DEFAULT"
-PS2="$ANSI_RED> $ANSI_DEFAULT"
-PS4="$ANSI_RED+ $ANSI_DEFAULT"
+PS2="$ANSI_CYAN> $ANSI_DEFAULT"
+PS4="$ANSI_CYAN+ $ANSI_DEFAULT"
 }
 gitorize_prompt
 
