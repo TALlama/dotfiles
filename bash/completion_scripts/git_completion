@@ -1157,7 +1157,9 @@ _git ()
 	bisect)      _git_bisect ;;
 	bundle)      _git_bundle ;;
 	branch)      _git_branch ;;
+	br)          _git_branch ;;
 	checkout)    _git_checkout ;;
+	co)          _git_checkout ;;
 	cherry)      _git_cherry ;;
 	cherry-pick) _git_cherry_pick ;;
 	commit)      _git_commit ;;
@@ -1176,6 +1178,7 @@ _git ()
 	pull)        _git_pull ;;
 	push)        _git_push ;;
 	rebase)      _git_rebase ;;
+	rb)          _git_rebase ;;
 	remote)      _git_remote ;;
 	reset)       _git_reset ;;
 	shortlog)    _git_shortlog ;;
