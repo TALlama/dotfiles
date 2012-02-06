@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# configuration
+host1="apol-recruit.ucsd.edu"
+host2="recruit.ap.uci.edu"
+
+# usage
+if [ "$*" == "" ]; then
+  echo "usage: $0 [full|fast|medium|slow|wwdc|off]"
+  exit
+fi
+
+# remove any previous firewall rules
+sudo ipfw list 100 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  sudo ipfw delete 100 > /dev/null 2>&1
+fi
+sudo ipfw list 110 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  sudo ipfw delete 110 > /dev/null 2>&1
+fi
+sudo ipfw list 200 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  sudo ipfw delete 200 > /dev/null 2>&1
+fi
+sudo ipfw list 210 > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+  sudo ipfw delete 210 > /dev/null 2>&1
+fi
+
+# process the command line option
+if [ "$1" == "full" ]; then
+  echo "full speed"
+elif [ "$1" == "off" ]; then
+  # add rules to deny any connections to configured host
+  if [ -n "$host1" ]; then
+    sudo ipfw add 100 deny tcp from $host1 to me
+    sudo ipfw add 110 deny tcp from me to $host1
+  fi
+  if [ -n "$host2" ]; then
+    sudo ipfw add 200 deny tcp from $host2 to me
+    sudo ipfw add 210 deny tcp from me to $host2
+  fi
+else
+  # create a pipe with limited bandwidth
+  bandwidth="100Kbit"
+  if [ "$1" == "fast" ]; then
+    bandwidth="300Kbit"
+  elif [ "$1" == "slow" ]; then
+    bandwidth="10Kbit"
+  elif [ "$1" == "wwdc" ]; then
+    bandwidth="1Kbit"
+  fi
+  sudo ipfw pipe 1 config bw $bandwidth
+
+  # add rules to use bandwidth limited pipe
+  if [ -n "$host1" ]; then
+    sudo ipfw add 100 pipe 1 tcp from $host1 to me
+    sudo ipfw add 110 pipe 1 tcp from me to $host1
+  fi
+  if [ -n "$host2" ]; then
+    sudo ipfw add 200 pipe 1 tcp from $host2 to me
+    sudo ipfw add 210 pipe 1 tcp from me to $host2
+  fi
+fi
+
+sudo ipfw list

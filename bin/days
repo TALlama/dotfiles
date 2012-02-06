@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'date'
+
+if quiet = ARGV[0] == "-q"
+	ARGV.shift
+end
+
+if ARGV.length == 0 or ARGV.length > 2
+	puts "Usage: #{File.basename(__FILE__)} 2009-05-09 [#{Date.today}]"
+end
+
+from = Date.parse(ARGV[0])
+to = Date.parse(ARGV[1]) rescue Date.today
+diff = (to - from).numerator
+puts quiet ? diff : "There are #{diff} days between #{from} and #{to}"
