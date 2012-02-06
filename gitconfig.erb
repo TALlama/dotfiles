@@ -31,7 +31,8 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
 	cob = checkout -b
 	up = !git fetch origin && git rebase origin/master
 	ir = !git rebase -i origin/master
-	ff = !git save && git rebase && git pop
+	ff = !git merge --ff-only `git config branch.qa.remote`/`git config branch.qa.merge | awk -F / '{print $3}'`
+	ffr = !git save && git rebase && git pop
 	di = diff
 	type = cat-file -t
 	dump = cat-file -p
@@ -54,5 +55,8 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
 	current-branch = !"git br | grep \"\\*\" | awk \"{print \\$2}\""
 	dont-rebase = !"git config --unset branch.`git current-branch`.rebase"
 	use-rebase = !"git config branch.`git current-branch`.rebase true"
+	fetch-all = remote update --prune
+	prunable = !"git_prunable"
+	brc = !"ruby -e '%x{git remote}.split.collect {|r| branches = %x{git branch -r | grep #{r}}.split; [branches.length, r, branches]}.sort.reverse.each {|p| puts \"#{p.first.to_s.rjust(2)} branches from #{p[1]}#{ARGV[1] == \"v\" ? \": #{p.last.join(\", \")}\" : \"\"}\"}'"
 [branch]
 	autosetuprebase = always

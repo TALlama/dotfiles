@@ -25,6 +25,7 @@ alias gst="git status"
 alias gap="git add --patch"
 alias gff="git ff"
 alias gco="git checkout"
+alias gdf="git diff"
 
 # ruby
 alias cuke='cucumber -r features -f pretty'

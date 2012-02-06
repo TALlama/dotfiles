@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby -wKU
+
+class BranchList
+  attr_accessor :branches
+  
+  def initialize(options={})
+    branches = %x{git branch -r #{options[:git_branch_args]}}.split("\n").collect {|b| b.strip}
+    branches = branches.select {|b| b =~ %r{#{options[:only_user]}/}} if options[:only_user]
+    branches = branches.reject {|b| b =~ %r{origin/}} unless options[:keep_origin]
+    branches = branches.reject {|b| b =~ %r{/master} || b =~ %r{/qa}} unless options[:keep_standard_branches]
+
+    self.branches = branches.collect {|b| b.split('/')}
+  end
+  
+  def branches_by_user(user=nil)
+    branches_by_user = branches.group_by {|b| b.first}
+    
+    if user.nil?
+      branches_by_user
+    else
+      branches_by_user[user]
+    end
+  end
+  
+  def each_user
+    bbu = branches_by_user
+    bbu.keys.sort_by {|u| branches_by_user[u].length}.reverse.each do |user|
+      yield user, branches_by_user[user]
+    end
+  end
+  
+  def total
+    branches.length
+  end
+end
+
+all = BranchList.new :keep_standard_branches => true
+prunable = BranchList.new :git_branch_args => '--merged', :only_user => ARGV[0]
+
+current_branch = %x{git branch | grep \"\\*\" | awk \"{print \\$2}\"}.chomp
+puts "# The following #{prunable.total} public branches (of #{all.total}) have been merged to #{current_branch} (your current branch):"
+
+prunable.each_user do |user, prunable_branches|
+  all_by_user = all.branches_by_user(user)
+  live_branches = all_by_user - prunable_branches - [[user, 'master'], [user, 'qa']]
+  live_branches.collect! {|b| b.join('/')}
+  
+  puts "", "# For user #{user}, #{prunable_branches.length} branch#{prunable_branches.length == 1 ? '' : 'es'} (of #{all_by_user.length}) can be pruned"
+  puts "# found using `git branch -r --merged | grep #{user}`"
+  prunable_branches.each do |(remote, branch)|
+    puts "git branch -d #{branch}".ljust(40) + " # remove local"
+    puts "git push origin :#{branch}".ljust(40) + " # remove from GitHub/#{remote}"
+  end
+  puts "# live branches: #{live_branches.join(', ')}"
+end
