@@ -4,9 +4,10 @@ class BranchList
   attr_accessor :branches
   
   def initialize(options={})
+    options[:only_user] = 'origin' if options[:only_user] == %{git config github.user}
+    
     branches = %x{git branch -r #{options[:git_branch_args]}}.split("\n").collect {|b| b.strip}
     branches = branches.select {|b| b =~ %r{#{options[:only_user]}/}} if options[:only_user]
-    branches = branches.reject {|b| b =~ %r{origin/}} unless options[:keep_origin]
     branches = branches.reject {|b| b =~ %r{/master} || b =~ %r{/qa}} unless options[:keep_standard_branches]
 
     self.branches = branches.collect {|b| b.split('/')}
@@ -34,7 +35,7 @@ class BranchList
   end
 end
 
-all = BranchList.new :keep_standard_branches => true
+all = BranchList.new :keep_standard_branches => true, :only_user => ARGV[0]
 prunable = BranchList.new :git_branch_args => '--merged', :only_user => ARGV[0]
 
 current_branch = %x{git branch | grep \"\\*\" | awk \"{print \\$2}\"}.chomp
