@@ -18,3 +18,5 @@ end
 def hide_log
   change_log(nil)
 end
+
+show_log
