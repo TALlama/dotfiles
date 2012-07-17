@@ -63,3 +63,5 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
 	brc = !"ruby -e '%x{git remote}.split.collect {|r| branches = %x{git branch -r | grep #{r}}.split; [branches.length, r, branches]}.sort.reverse.each {|p| puts \"#{p.first.to_s.rjust(2)} branches from #{p[1]}#{ARGV[1] == \"v\" ? \": #{p.last.join(\", \")}\" : \"\"}\"}'"
 [branch]
 	autosetuprebase = always
+[push]
+	default = current
