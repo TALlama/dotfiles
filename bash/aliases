@@ -25,7 +25,19 @@ alias gst="git status"
 alias gap="git add --patch"
 alias gff="git ff"
 alias gco="git checkout"
+alias gci="git commit"
 alias gdf="git diff"
 
 # ruby
-alias cuke='cucumber -r features -f pretty'
+alias be="bundle exec"
+alias r="bundle exec rspec"
+function cuke() {
+	mkdir -p results
+	`ruby -e "puts %{bundle exec cucumber --format html --out results/#{'focused-' if ARGV.count > 0}cukes.html --format pretty #{ARGV.join(' ')}}" $*`
+}
+function peruse() {
+	LOG=${1:-test}
+    tail -f log/$LOG.log | grep --color=auto "Started" &
+    tail -f log/$LOG.log | grep --color=auto "Parameters" &
+    tail -f log/$LOG.log | egrep --color=auto 'Completed [0-9]{3}' &
+}
