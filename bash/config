@@ -60,9 +60,10 @@ function gitorize_prompt {
     TITLEBAR=""
     ;;
   esac
+export GIT_PS1_SHOWDIRTYSTATE=true
 PS1="${TITLEBAR}\
 $ANSI_WHITE[$ANSI_CYAN\$(date +%H:%M)$ANSI_WHITE]\
-$ANSI_WHITE[$ANSI_CYAN\u@\h:\w$ANSI_YELLOW\$(parse_git_branch)$ANSI_WHITE]\
+$ANSI_WHITE[$ANSI_CYAN\u@\h:\w$ANSI_YELLOW\$(__git_ps1 \"(%s)\")$ANSI_WHITE]\
 $ANSI_GREEN\$ $ANSI_DEFAULT"
 PS2="$ANSI_CYAN> $ANSI_DEFAULT"
 PS4="$ANSI_CYAN+ $ANSI_DEFAULT"

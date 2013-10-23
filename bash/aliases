@@ -19,6 +19,7 @@ alias mate-reload="osascript -e 'tell app \"TextMate\" to reload bundles'"
 alias grep="grep --color=auto"
 alias ql="qlmanage -p"
 alias psgrep="ps auxwww | grep"
+alias fixopenwith='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user'
 
 # git
 alias gst="git status"
@@ -33,11 +34,11 @@ alias be="bundle exec"
 alias r="bundle exec rspec"
 function cuke() {
 	mkdir -p results
-	`ruby -e "puts %{bundle exec cucumber --format html --out results/#{'focused-' if ARGV.count > 0}cukes.html --format pretty #{ARGV.join(' ')}}" $*`
+	`ruby -e "puts %{#{File.exist?('.zeus.sock') ? 'zeus' : 'bundle exec'} cucumber --format html --out results/#{'focused-' if ARGV.count > 0}cukes.html --format pretty #{ARGV.join(' ')}}" $*`
 }
 function peruse() {
-	LOG=${1:-test}
-    tail -f log/$LOG.log | grep --color=auto "Started" &
-    tail -f log/$LOG.log | grep --color=auto "Parameters" &
-    tail -f log/$LOG.log | egrep --color=auto 'Completed [0-9]{3}' &
+  tail -f log/${1:-test}.log | egrep --color=auto "^Started|Processing by|Parameters|Filter chain halted|Completed [0-9]{3}" &
+}
+function git-check() {
+  r $(git diff --name-only --cached | grep spec.rb) && cuke $(git diff --name-only --cached | grep grep '\.feature$')
 }

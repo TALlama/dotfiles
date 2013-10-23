@@ -4,6 +4,7 @@ export PATH=/usr/local/git/bin:$PATH
 export PATH=/usr/local/sbin:$PATH
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/homebrew/bin:$PATH
+export PATH=/opt/bin:$PATH
 export PATH=~/bin:$PATH
 export PATH=~/.bin:$PATH
 
