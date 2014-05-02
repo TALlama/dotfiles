@@ -31,11 +31,9 @@ alias gdf="git diff"
 
 # ruby
 alias be="bundle exec"
-alias r="bundle exec rspec"
-function cuke() {
-	mkdir -p results
-	`ruby -e "puts %{#{File.exist?('.zeus.sock') ? 'zeus' : 'bundle exec'} cucumber --format html --out results/#{'focused-' if ARGV.count > 0}cukes.html --format pretty #{ARGV.join(' ')}}" $*`
-}
+alias r="rspec"
+alias cuke='cucumber'
+alias rcuke='cucumber --profile rerun'
 function peruse() {
   tail -f log/${1:-test}.log | egrep --color=auto "^Started|Processing by|Parameters|Filter chain halted|Completed [0-9]{3}" &
 }
