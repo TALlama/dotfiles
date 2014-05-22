@@ -40,3 +40,6 @@ function peruse() {
 function git-check() {
   r $(git diff --name-only --cached | grep spec.rb) && cuke $(git diff --name-only --cached | grep grep '\.feature$')
 }
+function spring-check() {
+	spring stop; time $*; spring status; time $*; spring status
+}
