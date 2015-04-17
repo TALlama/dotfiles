@@ -15,33 +15,14 @@ def say(msg)
 	%x{osascript -e 'tell application "Finder" to say "#{msg}"'}
 end
 
-%w[rubygems looksee/shortcuts wirble].each do |gem|
+%w[rubygems looksee/shortcuts awesome_print].each do |gem|
   begin
     require gem
   rescue LoadError
   end
 end
 
-class Object
-  # list methods which aren't in superclass
-  def local_methods(obj = self)
-    (obj.methods - obj.class.superclass.instance_methods).sort
-  end
-  
-  # print documentation
-  #
-  #   ri 'Array#pop'
-  #   Array.ri
-  #   Array.ri :pop
-  #   arr.ri :pop
-  def ri(method = nil)
-    unless method && method =~ /^[A-Z]/ # if class isn't specified
-      klass = self.kind_of?(Class) ? name : self.class.name
-      method = [klass, method].compact.join('#')
-    end
-    system 'ri', method.to_s
-  end
-end
+AwesomePrint.defaults = {indent: 2, index: false, multiline: false} if defined? AwesomePrint
 
 def copy(str)
   IO.popen('pbcopy', 'w') { |f| f << str.to_s }

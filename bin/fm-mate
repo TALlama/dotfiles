@@ -1,9 +1,8 @@
-#!/usr/bin/env ruby -wKU
+#!/usr/bin/env ruby -wU
 
 require 'pathname'
 
 name = %x{osascript -e 'set _n to the name of the first window of application "TextMate"'}
-pwd = Pathname.new(Dir.pwd)
 m = /^(.*) . (.+) \(git: .*\)$/.match(name)
 unless m
   $stderr.puts "Cannot locate frontmost file"

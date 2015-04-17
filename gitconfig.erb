@@ -10,7 +10,7 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
   interactive = auto
 [core]
   excludesfile = <%= ENV['HOME'] %>/.gitignore
-  editor = mate -w
+  editor = mate -wl1
   autocrlf = input
 [apply]
   whitespace = nowarn
@@ -29,6 +29,7 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
   co = checkout
   br = branch
   cob = checkout -b
+  cp = "!git checkout $(git branch | cut -c 3- | pick)"
   up = !git fetch origin && git rebase origin/master
   ir = !git rebase -i origin/master
   ff = !git merge --ff-only `git config branch.$(git current-branch).remote`/`git current-base-branch`
@@ -58,6 +59,7 @@ current = proc {|path| %x{git config --global #{path}}.chomp }
   prunable = !"git_prunable"
   prune-merged = !"git br --merged | grep -v '^\\* ' | xargs git br -d"
   kick = !"git ci --amend && git push origin -f"
+  brst = !"git for-each-ref refs/heads --format 'echo %(refname); git --no-pager log $(git config branch.`git current-branch`.remote)/$(git current-base-branch)..%(refname); echo' | sh"
 [branch]
   autosetuprebase = always
 [push]

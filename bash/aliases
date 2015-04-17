@@ -3,14 +3,6 @@
 # changing directory to code project
 function c { cd ~/code/$1; }
 
-# alternative to "rails" command to use templates
-function railsapp {
-  template=$1
-  appname=$2
-  shift 2
-  rails $appname -m http://github.com/ryanb/rails-templates/raw/master/$template.rb $@
-}
-
 # misc
 alias reload='. ~/.bash_profile'
 alias ll="ls -lhGF"
@@ -20,6 +12,7 @@ alias grep="grep --color=auto"
 alias ql="qlmanage -p"
 alias psgrep="ps auxwww | grep"
 alias fixopenwith='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user'
+alias hp='$(history | cut -c8- | sort -u | pick)'
 
 # git
 alias gst="git status"
@@ -31,9 +24,15 @@ alias gdf="git diff"
 
 # ruby
 alias be="bundle exec"
-alias r="rspec"
-alias cuke='cucumber'
+alias r="rspec --format documentation --out /tmp/last-rspec-run.txt --format documentation"
+alias rr="r \$(last-rspec-failures)"
+alias last-failures="awk '{print \$2}' | perl -pe 's/\n/ / unless eof'"
+alias last-rspec-failures="cat /tmp/last-rspec-run.txt | grep rspec | last-failures"
+alias cuke='cucumber --format=pretty'
 alias rcuke='cucumber --profile rerun'
+function gem_home() {
+  open $(gem specification $1 | grep homepage | cut -d' ' -f2);
+}
 function peruse() {
   tail -f log/${1:-test}.log | egrep --color=auto "^Started|Processing by|Parameters|Filter chain halted|Completed [0-9]{3}" &
 }

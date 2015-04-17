@@ -1,6 +1,5 @@
 export PATH=/Developer/Tools:$PATH
 export PATH=/usr/local/mysql/bin:$PATH
-export PATH=/usr/local/git/bin:$PATH
 export PATH=/usr/local/sbin:$PATH
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/homebrew/bin:$PATH
