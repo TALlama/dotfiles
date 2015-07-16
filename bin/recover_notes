@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+restore_to = "~/Dropbox/Notes/"
+restore_from = "/Volumes/Atavachron/Backups.backupdb/Tib/*/SSD"
+
+current_note_names = `ls -1 #{restore_to} `
+backed_up_note_paths = `find #{restore_from}/Users/tal/Dropbox/Notes -type f`.split("\n")
+backed_up_notes_by_path = Hash.new {|h,k| h[k] = []}
+backed_up_note_paths.map {|f| backed_up_notes_by_path[File.basename(f)] << f}
+
+cmds_by_origin_path = {}
+backed_up_notes_by_path.map do |name, paths|
+  next if name =~ /.DS_Store/
+  next if name =~ /Untitled.*.md/
+  next if name =~ /.\d*-\d*-\d*/
+  next if current_note_names.include? name
+  
+  last_path = paths.sort.last
+  cmds_by_origin_path[last_path] = "cp '#{last_path}' '#{restore_to}#{name}'"
+end
+cmds_by_origin_path.keys.sort.reverse.each {|origin_path| puts cmds_by_origin_path[origin_path]}
