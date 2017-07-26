@@ -1,6 +1,7 @@
 export EDITOR="mate_wait"
 export LESS="-erX" #stops annoying man behavior
 export CLICOLOR=true
+export GREP_COLOR="35;49"
 
 # colorize ls
 DIRECTORY=Ex
@@ -36,10 +37,11 @@ export    ANSI_CYAN_BG="\[\033[0;46m\]"
 export   ANSI_WHITE_BG="\[\033[0;47m\]"
 export ANSI_DEFAULT_BG="\[\033[0;49m\]"
 
-# make history work better
+# make history work better, and across terminals
 export HISTCONTROL=erasedups
 export HISTSIZE=10000
 shopt -s histappend
+export PROMPT_COMMAND="history -a; history -r; $PROMPT_COMMAND"
 
 # case insensitivity
 shopt -s nocaseglob

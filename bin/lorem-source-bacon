@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'open-uri'
+
+puts open('https://baconipsum.com/api/?type=meat-and-filler&paras=50&format=text')
+  .readlines
+  .join("\n").split('.')
+  .map {|s| s.strip.gsub(/\s+/, ' ') + '.'}
+  .reject(&:empty?)

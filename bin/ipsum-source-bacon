@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+curl -s 'https://baconipsum.com/api/?type=meat-and-filler&paras=5&format=text'

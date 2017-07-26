@@ -1,0 +1,224 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+class String
+  def undent
+    gsub(/^.{#{slice(/^ +/).length}}/, '')
+  end
+end
+
+class Lorem
+  attr_accessor :min, :max, :source
+  
+  def initialize(*args)
+    @source = Source.get(ENV.fetch('LOREM_SOURCE', 'Random'))
+    parse_options! args
+    @min ||= 500
+    @max ||= Float::INFINITY
+    
+    fail_if_min_is_larger_than_max
+    fail_if_source_has_no_matching_entries
+  end
+  
+  def fail_if_min_is_larger_than_max
+    return if min.nil? or max.nil?
+    return if min <= max
+    
+    $stderr.puts "Bad lengths; min (#{min}) > max (#{max})"
+    exit 1
+  end
+  
+  def fail_if_source_has_no_matching_entries
+    source_range = source.stats[:range]
+    return if max.nil? or max >= source_range.min
+    
+    $stderr.puts "Bad length limits (#{min}..#{max}) for source (shortest entry is #{source_range.min})"
+    exit 1
+  end
+  
+  def ipsum(target_count=min..max)
+    retval = []
+    retval_count = 0
+    until target_count.include?(retval_count)
+      entry = source.entries.sample
+      next if retval_count + entry.length > max
+      retval << entry
+      retval_count += entry.length
+    end
+    retval.join(' ')
+  end
+  
+  def parse_options!(args)
+    OptionParser.new do |opts|
+      opts.on("--min [MIN]", "Stop when you have at least this many characters") do |min|
+        @min = (min || 1).to_i
+      end
+      opts.on("--max [MAX]", "Make sure you have less than this many characters") do |max|
+        @min ||= @max = max.to_i
+      end
+      opts.on("--source [SOURCE]", "Use the source specified") do |source|
+        puts("No source provided. I know about these:") or parse_options!(%w{--sources}) if source.nil?
+        
+        @source = Source.get(source) rescue nil
+      end
+      opts.on("--sources", "Show all sources available") do
+        puts Source.each.to_a.map(&:local_name).sort
+        exit 0
+      end
+      opts.on("--stat", "Show stats on current source") do
+        puts source
+        exit 0
+      end
+      opts.on("--stats", "Show stats on sources") do
+        Source.each do |source|
+          puts source
+        end
+        exit 0
+      end
+      opts.on("--list", "Show entries in the current source") do
+        puts source.list
+        exit 0
+      end
+      opts.on("--lists", "Show entries in all sources") do
+        Source.each(skip: %i{Random}) do |source|
+          puts source.list
+        end
+        exit 0
+      end
+      
+      opts.separator ''
+      opts.separator ''
+      opts.separator 'SOURCES ' + '='*20
+      opts.separator %{
+        Lorem ships with a few sources, and picks between them at random by default. You can also add your own.
+        
+        Just make a script that outputs entries:
+      
+            #!/bin/bash
+            echo "Some clever thing."
+            echo "Oh, this is clever."
+        
+        Now name the script `lorem-source-clever`, where `clever` is a unique name, and add it to your path.
+        
+        You can now use `--source Clever` to pick it, or set `LOREM_SOURCE=Clever` in your environment to pick it by default.
+      }.undent
+      
+    end.parse! args
+  end
+  
+  def self.ipsum(*args)
+    new(*args).ipsum
+  end
+  
+  class Source
+    def self.load!(source_scripts = ENV.fetch('LOREM_SOURCE_SCRIPTS', '').split(":"))
+      return if @loaded
+      
+      if source_scripts.none?
+        source_scripts = ENV['PATH'].split(':').flat_map do |dir|
+          Dir[File.join(dir, 'lorem-source-*')].map do |source_script|
+            File.basename(source_script)
+          end
+        end
+      end
+      
+      source_scripts.each do |source_script|
+        local_name = source_script.sub(/^lorem-source-/, '')
+        class_name = local_name.capitalize.gsub(/-([a-z])/) { $1.capitalize }
+        add_script_source as: class_name, script: source_script
+      end
+      
+      @loaded = true
+    end
+    
+    def self.add_script_source(as:, script:)
+      Lorem::Sources.const_set(as, Class.new(Source) {get_from_script script})
+    end
+    
+    def self.get(local_name)
+      load!
+      Lorem::Sources.const_get(local_name).new
+    rescue NameError
+      $stderr.puts "Could not find source `#{local_name}`; make sure there is a `lorem-source-#{local_name.gsub(/([A-Z])/) {"-#{$1.downcase}"}.gsub(/^-/, '')}` script to provide entries."
+      exit 1
+    end
+    
+    def self.each(skip: [])
+      load!
+      return to_enum(__callee__, skip: skip) unless block_given?
+      Lorem::Sources.constants.each do |s|
+        next if skip.include? s
+        yield get(s)
+      end
+    end
+    
+    def self.get_from_script(script)
+      define_method(:get) {%x{#{script}}}
+    end
+    
+    def self.local_name
+      name[/::([^:]*)$/, 1]
+    end
+    
+    def local_name
+      self.class.local_name
+    end
+    
+    def to_s
+      local_name + "\n" + stats_s
+    end
+    
+    def inspect
+      "#{super[0..-2]} #{stats.inspect}>"
+    end
+    
+    def list
+      "#{local_name} --\n" +
+      entries.sort_by(&:length).join("\n") +
+      "--"
+    end
+    
+    def entries
+      return @entries if @entries
+      @entries = get
+      @entries = @entries.split("\n").map(&:strip) if @entries.is_a? String
+      @entries
+    end
+    
+    def stats
+      return @stats if @stats
+      lengths = entries.map(&:length).sort
+      @stats ||= {
+        entries: lengths.length,
+        min: lengths.min,
+        max: lengths.max,
+        mean: lengths.inject(0, :+)/lengths.length,
+        median: lengths[lengths.length/2],
+      }.tap do |stats|
+        stats[:range] = lengths.min..lengths.max
+      end
+    end
+    
+    def stats_s
+      "  entries: #{stats[:entries]}\n" +
+      "  min/max: #{stats[:min]}..#{stats[:max]}\n" +
+      "  median/mean: #{stats[:median]}/#{stats[:mean]}"
+    end
+  end
+  
+  module Sources
+    Random = Class.new(Source) {
+      def source; @source ||= Source.each(skip: %i{Random All Bacon}).to_a.sample; end
+      def ensure_source; $stderr.puts("No source found!") or exit 1 if source.nil?; end
+      def get; ensure_source; source.entries; end
+      def stats_s; "  [mirrors one of the other sources at random]"; end
+    }
+    All = Class.new(Source) {
+      def get; Source.each(skip: %i{Random All Bacon}).flat_map(&:entries); end
+    }
+  end
+end
+
+puts Lorem.new(*ARGV).ipsum if $0 == __FILE__
+

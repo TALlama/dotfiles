@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+
+class Branch
+  attr_reader :name
+  
+  def initialize(name)
+    @name = name
+  end
+  
+  def to_s
+    [
+      can_pit? ? "[PIT] " : "",
+      name,
+      "\n",
+      "-"*80,
+      "\n",
+      commits,
+      "\n",
+      "-"*80,
+    ].flatten.join
+  end
+  
+  def commits_to_s
+    return '' if commits.empty?
+    
+    "#     " + commits.join("\n#     ")
+  end
+  
+  def commits
+    @commits ||= %x{git cherry -v upstream/qa #{name}}.chomp.split("\n").reject(&:empty?)
+  end
+  
+  def can_pit?
+    @can_pit ||= commits.all? {|c| c.start_with? '-'}
+  end
+  
+  def self.all_names
+    %x{git branch}.split - ["*"]
+  end
+  
+  def self.find(names=(ARGV.length > 0 ? ARGV : Branch.all_names))
+    names.map {|n| Branch.new(n)}
+  end
+  
+  def self.current
+    @current ||= (%x{git branch}.split("\n").grep(/[*]/) || ['']).first[2..-1]
+  end
+end
+
+dry_run = ARGV[0] == '--dry-run'
+ARGV.shift if dry_run
+
+all = Branch.find
+puts "# PITTING " + "#"*70
+puts "# (dry run only; will not delete branches)" if dry_run
+all.select(&:can_pit?).each do |b|
+  puts(*["git br -D #{b.name}", b.commits_to_s].reject(&:empty?))
+  if b.name == Branch.current
+    puts "# (can't delete; it's the current branch)"
+  else
+    %x{git br -D #{b.name}} unless dry_run
+  end
+  puts
+end
+puts "# KEEPING " + "#"*70
+all.reject(&:can_pit?).each {|b| puts "# keeping #{b.name}", b.commits_to_s, ""}
