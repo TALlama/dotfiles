@@ -28,8 +28,8 @@ alias r="rspec --format documentation --out /tmp/last-rspec-run.txt --format doc
 alias rr="r \$(last-rspec-failures)"
 alias last-failures="awk '{print \$2}' | perl -pe 's/\n/ / unless eof'"
 alias last-rspec-failures="cat /tmp/last-rspec-run.txt | grep rspec | last-failures"
-alias cuke='cucumber --format=pretty'
-alias rcuke='cucumber --profile rerun'
+alias cuke='cucumber --format=pretty --expand'
+alias rcuke='cuke --profile rerun'
 function gem_home() {
   open $(gem specification $1 | grep homepage | cut -d' ' -f2);
 }
